@@ -5,7 +5,7 @@ def astar(map, start, goal, h):
     """
     Based implementation on this https://en.wikipedia.org/wiki/A*_search_algorithm
     """
-    discovered = set() #Discovered nodes, should be a pq
+    discovered = set() #Discovered nodes, could potentially be a pq but just a normal set here
     discovered.add(tuple(start))
     cameFrom = dict() #A dictionary of the nodes that preceeded the nth node
 
@@ -16,17 +16,18 @@ def astar(map, start, goal, h):
     fScore[tuple(start)] = h(start, goal)
 
     while len(discovered):
-        current = lowest_f_score(discovered, fScore)
+        current = lowest_f_score(discovered, fScore) #Get the node with the lowest f score for heuristic part of search
         #print(current)
-        if current == tuple(goal):
-            return path(cameFrom, current)
-        
-        discovered.remove(current)
 
-        neighborsToCurrent = get_neighbors(map.int_map, current[0], current[1], include_diagonals=False)
+        if current == tuple(goal):
+            return path(cameFrom, current) #Found the goal, return the path
+        
+        discovered.remove(current) #Remove current node from discovered
+
+        neighborsToCurrent = get_neighbors(map.int_map, current[0], current[1], include_diagonals=False) #Get surrounding coordinates
         #print(neighborsToCurrent)
 
-        for n in neighborsToCurrent:
+        for n in neighborsToCurrent: # Put neighbors in discovered and update scores if relevant
             tentative_gScore = gScore[current] + map.int_map[n]
             #print(tentative_gScore)
             if tentative_gScore < gScore[n]:
@@ -39,6 +40,7 @@ def astar(map, start, goal, h):
     return -1
 
 def path(came_from, current):
+    """Helper for getting a list of which coordinates to go through for shortest path"""
     totalPath = [current]
     while current in came_from.keys():
         current = came_from[current]
@@ -66,12 +68,6 @@ def lowest_f_score(discovered, fScore):
             min = fScore[val]
             returnVal = val
     return returnVal
-
-def neighbors(map, row_number, column_number, radius=1):
-     """From https://stackoverflow.com/questions/22550302/find-neighbors-in-a-matrix"""
-     return [[map[i][j] if  i >= 0 and i < len(map) and j >= 0 and j < len(map[0]) else 0
-                for j in range(column_number-1-radius, column_number+radius)]
-                    for i in range(row_number-1-radius, row_number+radius)]
 
 def get_neighbors(matrix, row, col, include_diagonals=False):
     """
