@@ -13,7 +13,7 @@ def astar(map, start, goal, h):
     gScore[tuple(start)] = 0 #Does not cost anything from start to start
     
     fScore = inf_dict(map.int_map.shape) #Sum of g and f, used when deciding path
-    fScore[tuple(start)] = h(start)
+    fScore[tuple(start)] = h(start, goal)
 
     while len(discovered):
         current = lowest_f_score(discovered, fScore)
@@ -32,7 +32,7 @@ def astar(map, start, goal, h):
             if tentative_gScore < gScore[n]:
                 cameFrom[n] = current
                 gScore[n] = tentative_gScore
-                fScore[n] = tentative_gScore + h(n)
+                fScore[n] = tentative_gScore + h(n, goal)
                 if n not in discovered:
                     discovered.add(n)
 
