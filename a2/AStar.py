@@ -1,5 +1,5 @@
 import sys
-
+import math
 
 def astar(map, start, goal, h):
     """
@@ -47,6 +47,14 @@ def path(came_from, current):
         totalPath = [current] + totalPath
     return totalPath
 
+
+def path_cost(map, path):
+    """Helper that returns the cost of the path that was taken"""
+    cost = 0
+    for coord in path:
+        cost += map.get_cell_value(coord)
+    return cost
+
 def inf_dict(shape):
     """Creates a dictionary with given shape containing only large values"""
     dictionary = dict()
@@ -88,3 +96,15 @@ def get_neighbors(matrix, row, col, include_diagonals=False):
             neighbors.append((r, c))
 
     return neighbors
+
+###Funcitons for calculating heurisitcs###
+def heuristic_bad(current, goal):
+    return 0
+
+def manhatten(current, goal):
+    """Returns the manhatten distance between given coordinate and goal"""
+    return abs(current[0]-goal[0]) + abs(current[1]-goal[1])
+
+def euclidean(current, goal):
+    """Returns the euclidean distance between given coordinate and goal"""
+    return math.sqrt((goal[0]-current[0])**2 + (goal[1]-current[1])**2)

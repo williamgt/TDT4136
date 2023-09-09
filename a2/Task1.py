@@ -10,14 +10,10 @@ print(map1.start_pos)
 print('goal1:')
 print(map1.goal_pos)
 
-#Very unfinished heuristic function
-def heuristic_1(current, goal):
-    return 0
-
 #Show map before shortest path
 map1.show_map()
 
-path = AStar.astar(map1, map1.start_pos, map1.goal_pos, heuristic_1)
+path = AStar.astar(map1, map1.start_pos, map1.goal_pos, AStar.heuristic_bad)
 
 #Add path to map and show it
 for pos in path:
