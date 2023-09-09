@@ -24,4 +24,3 @@ for pos in path:
     map1.replace_map_values(pos, 2, map1.goal_pos)
 
 map1.show_map()
-
