@@ -177,8 +177,10 @@ class CSP:
         in 'assignment' that have not yet been decided, i.e. whose list
         of legal values has a length greater than one.
         """
-        # TODO: YOUR CODE HERE
-        pass
+        for key, value in assignment.items(): #Currently only returns the first key with, could be better
+            if len(value):
+                return key
+        raise Exception("No unassigned variable found!")
 
     def inference(self, assignment, queue):
         """The function 'AC-3' from the pseudocode in the textbook.
@@ -186,7 +188,7 @@ class CSP:
         the lists of legal values for each undecided variable. 'queue'
         is the initial queue of arcs that should be visited.
         """
-        # TODO: YOUR CODE HERE
+        
         pass
 
     def revise(self, assignment, i, j):
