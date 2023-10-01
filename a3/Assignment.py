@@ -140,6 +140,7 @@ class CSP:
         # Run AC-3 on all constraints in the CSP, to weed out all of the
         # values that are not arc-consistent to begin with
         self.inference(assignment, self.get_all_arcs())
+        print(assignment)
 
         # Call backtrack with the partial assignment 'assignment'
         return self.backtrack(assignment)
@@ -168,8 +169,22 @@ class CSP:
         assignments and inferences that took place in previous
         iterations of the loop.
         """
-        # TODO: YOUR CODE HERE
-        pass
+        if all(len(e) == 1 for e in assignment.values()): #Is one value for each assignment, CSP is complete
+            return assignment
+        var = self.select_unassigned_variable(assignment)
+        if var == None:
+            print(assignment)
+        for value in assignment[var]:
+            deep_copy_assignment = copy.deepcopy(assignment)
+            deep_copy_assignment[var] = [value]
+            inference = self.inference(deep_copy_assignment, self.get_all_arcs())
+
+            if inference:
+                result = self.backtrack(deep_copy_assignment)
+                if result != None:
+                    return result
+            
+        return None
 
     def select_unassigned_variable(self, assignment):
         """The function 'Select-Unassigned-Variable' from the pseudocode
@@ -177,10 +192,10 @@ class CSP:
         in 'assignment' that have not yet been decided, i.e. whose list
         of legal values has a length greater than one.
         """
-        for key, value in assignment.items(): #Currently only returns the first key with, could be better
-            if len(value):
+        for key, value in assignment.items(): #Currently only returns the first var with 1 or more values, could be better
+            if len(value) > 1:
                 return key
-        raise Exception("No unassigned variable found!")
+        return None
 
     def inference(self, assignment, queue):
         """The function 'AC-3' from the pseudocode in the textbook.
@@ -188,8 +203,19 @@ class CSP:
         the lists of legal values for each undecided variable. 'queue'
         is the initial queue of arcs that should be visited.
         """
-        
-        pass
+        while queue:
+            (xi, xj) = queue.pop()
+            if self.revise(assignment, xi, xj):
+                if len(assignment[xi]) == 0: 
+                    return False
+                
+                #Getting all the relevant neighbouring arcs and adding them to the queue 
+                neighboring_arcs = self.get_all_neighboring_arcs(xi)
+                neighboring_arcs.remove((xj, xi)) #TODO NB!!! CHECK THIS LATER
+   
+                for xk in neighboring_arcs:
+                    queue.append(xk)
+        return True
 
     def revise(self, assignment, i, j):
         """The function 'Revise' from the pseudocode in the textbook.
@@ -200,8 +226,14 @@ class CSP:
         between i and j, the value should be deleted from i's list of
         legal values in 'assignment'.
         """
-        # TODO: YOUR CODE HERE
-        pass
+
+        revised = False
+        for x in assignment[i]:
+            for y in assignment[j]:
+                if(x, y) not in self.constraints[i][j]:
+                    assignment[i].remove(x)
+                    revised = True
+        return revised
 
 
 def create_map_coloring_csp():
@@ -278,3 +310,7 @@ def print_sudoku_solution(solution):
         print("")
         if row == 2 or row == 5:
             print('------+-------+------')
+
+map_csp = create_map_coloring_csp()
+#print(map_csp.constraints)
+print(map_csp.backtracking_search())
