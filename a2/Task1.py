@@ -14,6 +14,8 @@ print(map1.goal_pos)
 map1.show_map()
 
 path = AStar.astar(map1, map1.start_pos, map1.goal_pos, AStar.heuristic_bad)
+print('Length of path')
+print(len(path))
 
 #Add path to map and show it
 for pos in path:

@@ -14,7 +14,7 @@ print(map4.goal_pos)
 #Show map before shortest path
 map4.show_map()
 
-path = AStar.astar(map4, map4.start_pos, map4.goal_pos, AStar.euclidean)
+path = AStar.astar(map4, map4.start_pos, map4.goal_pos, AStar.manhatten)
 print('Length of path')
 print(len(path))
 print('Cost of path:')

@@ -13,7 +13,7 @@ print(map2.goal_pos)
 #Show map before shortest path
 map2.show_map()
 
-path = AStar.astar(map2, map2.start_pos, map2.goal_pos, AStar.euclidean)
+path = AStar.astar(map2, map2.start_pos, map2.goal_pos, AStar.manhatten)
 print('Length of path')
 print(len(path))
 
