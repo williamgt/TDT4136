@@ -7,6 +7,8 @@ from itertools import product as prod
 
 
 class CSP:
+    backtrack_called = 0
+    backtrack_failed = 0
     def __init__(self):
         # self.variables is a list of the variable names in the CSP
         self.variables = []
@@ -140,7 +142,6 @@ class CSP:
         # Run AC-3 on all constraints in the CSP, to weed out all of the
         # values that are not arc-consistent to begin with
         self.inference(assignment, self.get_all_arcs())
-        print(assignment)
 
         # Call backtrack with the partial assignment 'assignment'
         return self.backtrack(assignment)
@@ -169,11 +170,12 @@ class CSP:
         assignments and inferences that took place in previous
         iterations of the loop.
         """
+        
+
         if all(len(e) == 1 for e in assignment.values()): #Is one value for each assignment, CSP is complete
             return assignment
         var = self.select_unassigned_variable(assignment)
-        if var == None:
-            print(assignment)
+
         for value in assignment[var]:
             deep_copy_assignment = copy.deepcopy(assignment)
             deep_copy_assignment[var] = [value]
@@ -182,8 +184,12 @@ class CSP:
             if inference:
                 result = self.backtrack(deep_copy_assignment)
                 if result != None:
+                    #Calling backtrack, count it
+                    self.backtrack_called += 1
                     return result
-            
+
+        #Backtrack failed, count it
+        self.backtrack_failed += 1    
         return None
 
     def select_unassigned_variable(self, assignment):
@@ -311,5 +317,30 @@ def print_sudoku_solution(solution):
             print('------+-------+------')
 
 map_csp = create_map_coloring_csp()
-#print(map_csp.constraints)
 print(map_csp.backtracking_search())
+print("Backtrack called " + str(map_csp.backtrack_called) + " times")
+print("Backtrack failed " + str(map_csp.backtrack_failed) + " times")
+print()
+
+sudoku_csp = create_sudoku_csp("a3/easy.txt")
+print(sudoku_csp.backtracking_search())
+print("Backtrack called " + str(sudoku_csp.backtrack_called) + " times")
+print("Backtrack failed " + str(sudoku_csp.backtrack_failed) + " times")
+print()
+
+sudoku_csp_medium = create_sudoku_csp("a3/medium.txt")
+print_sudoku_solution(sudoku_csp_medium.backtracking_search())
+print("Backtrack called " + str(sudoku_csp_medium.backtrack_called) + " times")
+print("Backtrack failed " + str(sudoku_csp_medium.backtrack_failed) + " times")
+print()
+
+sudoku_csp_hard = create_sudoku_csp("a3/hard.txt")
+print_sudoku_solution(sudoku_csp_hard.backtracking_search())
+print("Backtrack called " + str(sudoku_csp_hard.backtrack_called) + " times")
+print("Backtrack failed " + str(sudoku_csp_hard.backtrack_failed) + " times")
+print()
+
+sudoku_csp_veryhard = create_sudoku_csp("a3/veryhard.txt")
+print_sudoku_solution(sudoku_csp_veryhard.backtracking_search())
+print("Backtrack called " + str(sudoku_csp_veryhard.backtrack_called) + " times")
+print("Backtrack failed " + str(sudoku_csp_veryhard.backtrack_failed) + " times")
