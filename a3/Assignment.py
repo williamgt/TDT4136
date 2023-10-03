@@ -228,11 +228,10 @@ class CSP:
         """
 
         revised = False
-        for x in assignment[i]:
-            for y in assignment[j]:
-                if(x, y) not in self.constraints[i][j]:
-                    assignment[i].remove(x)
-                    revised = True
+        for x in assignment[i][:]:
+            if not any((x, y) in self.constraints[i][j] for y in assignment[j]):
+                assignment[i].remove(x)
+                revised = True
         return revised
 
 
