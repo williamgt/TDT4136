@@ -174,15 +174,15 @@ class CSP:
 
         if all(len(e) == 1 for e in assignment.values()): #Is one value for each assignment, CSP is complete
             return assignment
-        var = self.select_unassigned_variable(assignment)
+        var = self.select_unassigned_variable(assignment) #Get a variable whose value is yet to be decided
 
         for value in assignment[var]:
-            deep_copy_assignment = copy.deepcopy(assignment)
-            deep_copy_assignment[var] = [value]
-            inference = self.inference(deep_copy_assignment, self.get_all_arcs())
+            deep_copy_assignment = copy.deepcopy(assignment) #Do not overwrite original in case needs to go back
+            deep_copy_assignment[var] = [value] #Try a value for the variable
+            inference = self.inference(deep_copy_assignment, self.get_all_arcs()) #Find potential assignments for the others
 
-            if inference:
-                result = self.backtrack(deep_copy_assignment)
+            if inference: #If potential assignments were found
+                result = self.backtrack(deep_copy_assignment) #Backtrack to find more
                 if result != None:
                     #Calling backtrack, count it
                     self.backtrack_called += 1
@@ -198,7 +198,7 @@ class CSP:
         in 'assignment' that have not yet been decided, i.e. whose list
         of legal values has a length greater than one.
         """
-        for key, value in assignment.items(): #Currently only returns the first var with 1 or more values, could be better
+        for key, value in assignment.items(): #Currently only returns the first var with more than 1 values, could be better heuristic here
             if len(value) > 1:
                 return key
         return None
@@ -209,16 +209,15 @@ class CSP:
         the lists of legal values for each undecided variable. 'queue'
         is the initial queue of arcs that should be visited.
         """
-        while queue:
+        while queue: #While arcs to be checked
             (xi, xj) = queue.pop()
-            if self.revise(assignment, xi, xj):
-                if len(assignment[xi]) == 0: 
+            if self.revise(assignment, xi, xj): #If have to revise the value for the given arc
+                if len(assignment[xi]) == 0: #One variable has empty domain, CSP cannot be solved
                     return False
                 
-                #Getting all the relevant neighbouring arcs and adding them to the queue 
+                #Getting all the relevant neighbouring arcs and adding them to the queue to be checked 
                 neighboring_arcs = self.get_all_neighboring_arcs(xi)
-                neighboring_arcs.remove((xj, xi)) #TODO NB!!! CHECK THIS LATER
-   
+                neighboring_arcs.remove((xj, xi)) 
                 for xk in neighboring_arcs:
                     queue.append(xk)
         return True
@@ -234,11 +233,11 @@ class CSP:
         """
 
         revised = False
-        for x in assignment[i][:]:
-            if not any((x, y) in self.constraints[i][j] for y in assignment[j]):
-                assignment[i].remove(x)
+        for x in assignment[i]: #For all potential values for variable i
+            if not any((x, y) in self.constraints[i][j] for y in assignment[j]): #If there is no potential values for variable j such that a combination of their values satisfy the constraint 
+                assignment[i].remove(x) #Remove value x from potential values for variable i to get towards a state where one value is left for i
                 revised = True
-        return revised
+        return revised #Return whether potential values for i has been reduced or not
 
 
 def create_map_coloring_csp():
@@ -316,6 +315,10 @@ def print_sudoku_solution(solution):
         if row == 2 or row == 5:
             print('------+-------+------')
 
+
+"""~~~PRINTING RESULTS HERE~~~"""
+
+print("Printing for map csp too")
 map_csp = create_map_coloring_csp()
 print(map_csp.backtracking_search())
 print("Backtrack called " + str(map_csp.backtrack_called) + " times")
