@@ -106,6 +106,8 @@ class MultiAgentSearchAgent(Agent):
         self.index = 0 # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+        self.alpha = -sys.maxsize-1
+        self.beta = sys.maxsize
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -114,12 +116,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
     def max_value(self, gameState, depth):
         """
-        Finds the maximum value for pacman for some given game state at a particular depth
+        Finds the maximum value for pacman for some given game state at a particular depth.
         """
         actions = gameState.getLegalActions(0) # Getting all of pacman's legal actions
         if not actions or gameState.isWin() or gameState.isLose() or depth == self.depth: # If no more actions, game is won/lost or at max depth, get the final score
             return (self.evaluationFunction(gameState), None)
-        v, move = -sys.maxsize - 1, -sys.maxsize - 1 # Initializing variables
+        v, move = -sys.maxsize - 1, None # Initializing variables
         # Checking all of pacman's actions
         for a in actions:
             # Getting value and action considering what the ghosts will do
@@ -136,7 +138,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         actions = gameState.getLegalActions(agent_num-1) # Getting all of the ghost's legal actions
         if not actions: # Ghost has no legal actions
             return (self.evaluationFunction(gameState), None) 
-        v, move = sys.maxsize, sys.maxsize # Initializing variables
+        v, move = sys.maxsize, None # Initializing variables
         # Checking all of the ghost's actions
         for a in actions:
             if agent_num == gameState.getNumAgents(): # Checking the last ghost!
@@ -180,12 +182,56 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     Your minimax agent with alpha-beta pruning (question 3)
     """
 
+    def max_value(self, gameState, depth, alpha, beta):
+        """
+        Finds the maximum value for pacman for some given game state at a particular depth.
+        Also does pruning.
+        """
+        actions = gameState.getLegalActions(0) # Getting all of pacman's legal actions
+        if not actions or gameState.isWin() or gameState.isLose() or depth == self.depth: # If no more actions, game is won/lost or at max depth, get the final score
+            return (self.evaluationFunction(gameState), None)
+        v, move = -sys.maxsize - 1, None # Initializing variables
+        # Checking all of pacman's actions
+        for a in actions:
+            # Getting value and action considering what the ghosts will do
+            (v2, a2) = self.min_value(gameState.generateSuccessor(0, a), 2, depth, alpha, beta) # 2 is when the first ghost agent starts
+            if v2 > v: # If the ghosts allows an action with higher value, update
+                v, move = v2, a
+            if v > beta: 
+                return (v, move) # Found the most suitable move, prune!
+            alpha = max(alpha, v) # Update alpha value if a higher value is found
+        return (v, move)
+    
+    def min_value(self, gameState, agent_num, depth, alpha, beta):
+        """
+        Finds the minimum value for a given ghost for some given game state at a particular depth.
+        Also does pruning.
+        When writing agent_num-1. it's converted to its to index.
+        """
+        actions = gameState.getLegalActions(agent_num-1) # Getting all of the ghost's legal actions
+        if not actions: # Ghost has no legal actions
+            return (self.evaluationFunction(gameState), None) 
+        v, move = sys.maxsize, None # Initializing variables
+        # Checking all of the ghost's actions
+        for a in actions:
+            if agent_num == gameState.getNumAgents(): # Checking the last ghost!
+                (v2, a2) = self.max_value(gameState.generateSuccessor(agent_num-1, a), depth+1, alpha, beta) # Check next depth because last ghost
+            else: # Consider the other ghosts
+                (v2, a2) = self.min_value(gameState.generateSuccessor(agent_num-1, a), agent_num+1, depth, alpha, beta) # All ghosts at same depth, check min
+            if v2 < v: # If some action allows for a lower value, update
+                v, move = v2, a
+            if v < alpha:
+                return (v, move) # Found the most suitable move, prune!
+            beta = min(beta, v) # Update beta value if a lower value is found
+        return (v, move)
+    
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        value, move = self.max_value(gameState, 0, -sys.maxsize-1, sys.maxsize)
+        return move
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
